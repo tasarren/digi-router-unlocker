@@ -1,61 +1,139 @@
 # XGB430v unlock
 
-Reveals the hidden menus of the **Digi TP-Link XGB430v Pro** (BE7200 Wi-Fi 7 XGS-PON router) web UI:
-QoS, Security, VPN, GPON WAN settings, 3G/4G, and the Internet entry on the Basic tab; everything the
-ISP-restricted account normally cannot see.
+[![Install with Tampermonkey](https://img.shields.io/badge/Install%20with-Tampermonkey-00485B?logo=tampermonkey&logoColor=white)](https://raw.githubusercontent.com/tasarren/digi-router-unlocker/main/unlock.user.js)
+[![Install with Violentmonkey](https://img.shields.io/badge/Install%20with-Violentmonkey-F26B1F)](https://raw.githubusercontent.com/tasarren/digi-router-unlocker/main/unlock.user.js)
+[![Download .user.js](https://img.shields.io/badge/Download-.user.js-2ea44f)](https://raw.githubusercontent.com/tasarren/digi-router-unlocker/main/unlock.user.js)
 
-Tested on our unit: **Digi TP-Link XGB430v Pro, hardware v1.0, firmware `0.2.0 3.2.1 v60c3.0 Build 250808 Rel.72518n`**
-(`Hardware Version:XGB430v Pro v1.0`). Other hardware or firmware revisions are untested; they may work,
-they may not (the flag in `js/oid_str.js` has to exist in the same frozen form).
+[Español](README.md) · [Variables reference: `VARIABLES.md`](VARIABLES.md)
+
+Unlocks every hidden menu in the **Digi TP-Link XGB430v Pro** (XGS-PON BE7200 Wi-Fi 7) web UI:
+QoS, Security, VPN, GPON WAN settings, 3G/4G, the full Firewall page, SFU VLAN, CATV, Application List,
+TR-369, Telnet, SSH...
+
+In short: everything the ISP-restricted account does not let you see.
+
+Tested on: **Digi TP-Link XGB430v Pro, hardware v1.0, firmware `0.2.0 3.2.1 v60c3.0 Build 250808 Rel.72518n`**
+(`Hardware Version:XGB430v Pro v1.0`). I have not tested other hardware or firmware revisions; they may work
+or they may not. Open an issue if it does not work for you.
+
+![widget-digi-unlocker](screenshots/widget.png)
 
 | With the script | Default (ISP) |
 | --- | --- |
-| ![advanced patched](screenshots/advanced-patched.png) | ![advanced default](screenshots/advanced-default.png) |
+| ![advanced patched](screenshots/widget-loaded.png) | ![advanced default](screenshots/advanced-default.png) |
+
+## Install
+
+Two ways:
+
+**A. Userscript manager (Tampermonkey / Violentmonkey)**
+
+1. Install the extension in your browser.
+2. Create a new script, paste the contents of `unlock.user.js`, save.
+3. Open the router UI and reload.
+
+**B. Browser extension (Manifest V3)**
+
+1. `chrome://extensions` (or `edge://extensions`).
+2. Enable **Developer mode**.
+3. **Load unpacked** → select this repository folder (the one with `manifest.json`).
+
+The manifest injects `unlock.user.js` at `document_start`, into the page's `MAIN` world and in all frames;
+that combination is required to run before `oid_str.js` freezes the flag.
+
+## Change the router IP
+
+The script only runs where it is told to. It defaults to `192.168.1.1`; if your router uses another address
+(check the label on the device or your default gateway: `ip route`, `ipconfig /all`, Settings → Network),
+change it in both places:
+
+**1. `unlock.user.js`, lines 4 and 5:**
+
+```js
+// @match        http://192.168.1.1/*
+// @match        https://192.168.1.1/*
+```
+
+Change `192.168.1.1` to your router IP on both lines; for example:
+
+```js
+// @match        http://192.168.0.1/*
+// @match        https://192.168.0.1/*
+```
+
+**2. `manifest.json`, line 8:** same thing, `matches` goes from
+
+```json
+"matches": [
+  "http://192.168.1.1/*",
+  "https://192.168.1.1/*"
+]
+```
+
+to, for example:
+
+```json
+"matches": [
+  "http://192.168.0.1/*",
+  "https://192.168.0.1/*"
+]
+```
+
+**3. Reload:** if you use the userscript, reinstall or re-enable it; if you use the extension, press its
+reload button. Then reload the router page.
 
 ## What it does
 
-The router firmware ships ~1600 feature flags (`INCLUDE_*`) in `js/oid_str.js`. One of them,
-`INCLUDE_USER_RESTRICTION`, is what hides the menus for the restricted account. The firmware freezes it:
+The firmware ships about 1600 feature flags (`INCLUDE_*`) in `js/oid_str.js`. One of them,
+`INCLUDE_USER_RESTRICTION`, hides the menus from the restricted account, and the firmware freezes it at boot:
 
 ```js
-Object.defineProperty(window, 'INCLUDE_USER_RESTRICTION', { value: 1, writable: false });
+Object.defineProperty(window, 'INCLUDE_USER_RESTRICTION', {value: 1, writable: false});
 ```
 
-Non-configurable, so devtools or bookmarklets can not change it after load. This project installs a hook
-**before** `oid_str.js` runs and rewrites that single `defineProperty` call:
+Because it is non-configurable, neither devtools nor bookmarklets can change it after the page loads. So this
+project runs **before** `oid_str.js` and rewrites that single `defineProperty` call:
 
 ```js
 const define = Object.defineProperty;
 Object.defineProperty = function (target, prop, descriptor) {
-  if (target === window && prop === 'INCLUDE_USER_RESTRICTION') {
-    descriptor = { value: 0, writable: true, configurable: true };
-  }
-  return define(target, prop, descriptor);
+    if (target === window && prop === 'INCLUDE_USER_RESTRICTION') {
+        descriptor = {value: 0, writable: true, configurable: true};
+    }
+    return define(target, prop, descriptor);
 };
 ```
 
-That is the whole trick; 10 lines in `unlock.user.js`.
+## Recommended: keep the ISP out of your box
 
-**Client-side only.** It changes what the UI renders; it never changes router config by itself, and the
-server may still reject operations the ISP disabled. It does not bypass login.
+The script only changes what the browser renders. The ISP still has a management channel into the router
+(TR-069/CWMP) and can push changes, undo yours, or update the firmware without you noticing. Before changing
+anything:
+
+1. **Turn off remote management**: Administration → "Manage this Router via the Address". Disable it.
+2. **Turn off TR-069 / ACS** if your firmware exposes the option (look for TR-069 or CWMP under Network or
+   Management). That is the channel the ISP uses to provision the box and undo your changes.
+3. **Set a strong admin password** on the Administration page while you are there.
+
+Remember: this is all client side; the ISP's server-side policy still wins.
 
 ### Unlocked vs default
 
 | Unlocked (script) | Default (ISP) |
 | --- | --- |
-| **Basic → Internet**: menu entry for WAN/4G internet setup | no Internet entry anywhere in the Basic menu |
+| **Basic → Internet**: menu entry to set up the WAN/4G connection | Internet does not appear anywhere in the Basic menu |
 | **Basic → USB Sharing → 3G/4G Settings**: USB modem settings (APN, PIN, dial number, manual dial) | USB Sharing only has USB Storage Device |
-| **Network → Internet**: WAN/broadband connection page | entry missing |
-| **Network → GPON WAN**: XGS-PON service page (GPON Settings: PPPoE `pppoe_gpon_20_1`, VLAN 20, IPoE) | entry missing; page unreachable |
-| **Network → Static Routing**: static route table (add/modify/delete) | entry missing |
+| **Network → Internet**: broadband/WAN connection page | entry missing |
+| **Network → GPON WAN**: XGS-PON service page (GPON Settings: PPPoE `pppoe_gpon_20_1`, VLAN 20, IPoE) | entry missing and the page cannot be opened |
+| **Network → Static Routing**: static route table (add, modify, delete) | entry missing |
 | **Network → RIP Settings**: RIP protocol configuration | entry missing |
-| **Network**: full submenu (Internet, GPON WAN, GPON Settings, LAN Settings, Dynamic DNS, Static Routing, RIP) | submenu reduced to LAN Settings + Dynamic DNS |
-| **QoS**: main-menu section with Traffic Control page (VoIP QoS toggle, priority bands High 60% / Middle 30% / Low 10%, per-device QoS Rule List) | no QoS menu at all |
-| **VPN**: main-menu section with server pages for OpenVPN, PPTP VPN, IPSec VPN and VPN Connections | no VPN menu at all |
-| **Telephony**: full submenu, adds Telephone Book, Digit Map, DND & Call Blocking, Call Forwarding | only Telephone Number and Call Log |
-| **System Tools → Firmware Upgrade**: upgrade page with hardware/firmware version and serial number | entry missing |
-| **System Tools → System Log**: log viewer, filtering and export | entry missing |
-| Same on both: Status, Network Map, Wireless, Guest Network, Multi-SSID, Telephony basics, NAT Forwarding (ALG, Virtual Servers, Port Triggering, DMZ, UPnP), USB Storage Device, Parental Controls, Security, Diagnostics, Administration, Mesh | those work without the script |
+| **Network**: full submenu (Internet, GPON WAN, GPON Settings, LAN Settings, Dynamic DNS, Static Routing, RIP) | only LAN Settings and Dynamic DNS remain |
+| **QoS**: menu section with its Traffic Control page (VoIP QoS, priority bands High 60% / Middle 30% / Low 10%, per-device QoS rule list) | no QoS menu |
+| **VPN**: menu section with OpenVPN server, PPTP VPN, IPSec VPN and VPN Connections pages | no VPN menu |
+| **Telephony**: full submenu; adds Telephone Book, Digit Map, DND & Call Blocking and Call Forwarding | only Telephone Number and Call Log |
+| **System Tools → Firmware Upgrade**: upgrade page with hardware/firmware versions and serial number | entry missing |
+| **System Tools → System Log**: log viewer with filtering and export | entry missing |
+| Same on both: Status, Network Map, Wireless, Guest Network, Multi-SSID, basic Telephony, NAT Forwarding (ALG, Virtual Servers, Port Triggering, DMZ, UPnP), USB Storage Device, Parental Controls, Security, Diagnostics, Administration and Mesh | all of that works without the script |
 
 ## Screenshots
 
@@ -79,84 +157,4 @@ server may still reject operations the ISP disabled. It does not bypass login.
 | Administration | <a href="screenshots/adv-admin-patched.png"><img src="screenshots/adv-admin-patched.png" width="240" alt="admin patched" /></a> | <a href="screenshots/adv-admin-default.png"><img src="screenshots/adv-admin-default.png" width="240" alt="admin default" /></a> |
 | Telephony | <a href="screenshots/adv-telephony-patched.png"><img src="screenshots/adv-telephony-patched.png" width="240" alt="telephony patched" /></a> | <a href="screenshots/adv-telephony-default.png"><img src="screenshots/adv-telephony-default.png" width="240" alt="telephony default" /></a> |
 
-"Not available" = the page is hidden by default
-under the ISP restriction, so no default screenshot exists.
-
-## Install
-
-Two ways, same file:
-
-**A. Userscript manager (Tampermonkey / Violentmonkey)**
-
-1. Install the extension in your browser.
-2. Create a new script, paste the contents of `unlock.user.js`, save.
-3. Open the router UI and reload.
-
-**B. Browser extension (Manifest V3)**
-
-1. `chrome://extensions` (or `edge://extensions`).
-2. Enable **Developer mode**.
-3. **Load unpacked** → select this repository folder (the one with `manifest.json`).
-
-The manifest injects `unlock.user.js` at `document_start` into the page's `MAIN` world, in all frames;
-the timing and world required to run before `oid_str.js` freezes the flag.
-
-## Change the router IP
-
-The script only runs on the router address it was told about. It defaults to `192.168.1.1`; change it if
-your router uses another address (check the label on the device or your default gateway:
-`ip route`, `ipconfig /all`, System Settings → Network).
-
-**1. `unlock.user.js` lines 4–5:**
-
-```js
-// @match        http://192.168.1.1/*
-// @match        https://192.168.1.1/*
-```
-
-replace `192.168.1.1` with your router's IP in both lines, e.g.:
-
-```js
-// @match        http://192.168.0.1/*
-// @match        https://192.168.0.1/*
-```
-
-**2. `manifest.json` line 8 (same replacement):**
-
-```json
-"matches": ["http://192.168.1.1/*", "https://192.168.1.1/*"]
-```
-
-becomes, for example:
-
-```json
-"matches": ["http://192.168.0.1/*", "https://192.168.0.1/*"]
-```
-
-**3. Reload:** reinstall/re-enable the userscript, or press the reload button on the unpacked extension,
-then reload the router page.
-
-Keep the `/*` path wildcard and both `http`/`https` lines; some firmwares serve one or the other.
-Common gateway addresses: `192.168.0.1`, `192.168.1.1`, `192.168.1.254`, `192.168.100.1`.
-
-## Recommended: keep the ISP out of your box
-
-The script only changes what the browser renders. The ISP still has a management channel into the router
-(TR-069/CWMP) and can push changes or revert yours, usually after a reboot or a firmware update. Before
-you start changing settings:
-
-1. **Leave remote management off**: Administration → "Manage this Router via the Address". If you turn it
-   on, the router answers on its public IP (the screenshots show `http://<public IP>` sitting there).
-2. **Turn off TR-069 / ACS** if your firmware exposes the option (look for TR-069 or CWMP under
-   Network/Management). That is the channel the ISP uses to re-provision the box and undo user changes.
-   Some ISPs need it to activate the service: if your internet dies after disabling it, turn it back on.
-3. **Set a strong admin password** on the Administration page while you are there.
-
-Remember: all of this is client side; the server side policy still wins.
-
-## Notes
-
-- Works only while the flag mechanism stays as-is; a firmware update may change `oid_str.js`.
-- Hidden for a reason: enabling a menu does not guarantee the ISP's server-side policy allows the feature.
-- Screenshots are regenerated by `.orchestrator/scripts/screenshots/build.py` from `screenshots/raw/`:
-  detect the two windows → OCR (cached) → redact → save each window as `-patched`/`-default`.
+"Not available" means the page is hidden by default under the ISP restriction, so no default screenshot exists.

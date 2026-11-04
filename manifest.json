@@ -1,11 +1,14 @@
 {
   "manifest_version": 3,
   "name": "XGB430v unlock",
-  "version": "1.0",
-  "description": "Forces INCLUDE_USER_RESTRICTION=0 on the Digi TP-Link XGB430v Pro web UI (client-side only).",
+  "version": "0.1.1",
+  "description": "Reveals every menu/page the Digi TP-Link XGB430v Pro firmware serves to the restricted account (client-side only) + floating tool panel (admin passwords from backup, telnet LAN toggle).",
   "content_scripts": [
     {
-      "matches": ["http://192.168.1.1/*", "https://192.168.1.1/*"],
+      "matches": [
+        "http://192.168.1.1/*",
+        "https://192.168.1.1/*",
+      ],
       "js": ["unlock.user.js"],
       "run_at": "document_start",
       "all_frames": true,
