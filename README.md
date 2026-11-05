@@ -1,4 +1,7 @@
-# XGB430v unlock
+# XGB430v admin unlock - Obtener las claves de admin para el router Digi TP-Link XGB430v Pro
+
+Te permite conseguir la clave de admin para gestionar el router **DIGI TP-Link XGB430v Pro** (XGS-PON BE7200Wi-Fi 7).
+Súper fácil, ¡desde tu navegador! no tienes que tener conocimientos ni ejecutar scripts.
 
 [![Instalar con Tampermonkey](https://img.shields.io/badge/Instalar%20con-Tampermonkey-00485B?logo=tampermonkey&logoColor=white)](https://raw.githubusercontent.com/tasarren/digi-router-unlocker/main/unlock.user.js)
 [![Instalar con Violentmonkey](https://img.shields.io/badge/Instalar%20con-Violentmonkey-F26B1F)](https://raw.githubusercontent.com/tasarren/digi-router-unlocker/main/unlock.user.js)
@@ -6,8 +9,7 @@
 
 [English](README-en.md)
 
-Desbloquea todos los menús escondidos de la interfaz web del **Digi TP-Link XGB430v Pro** (XGS-PON BE7200
-Wi-Fi 7): QoS, Security, VPN, los ajustes de GPON WAN, 3G/4G, Firewall completa, SFU VLAN, CATV, Application List,
+Siendo admin puedes usar: QoS, Security, VPN, los ajustes de GPON WAN, 3G/4G, Firewall completa, SFU VLAN, CATV, Application List,
 TR-369, Telnet, SSH...
 
 En resumen, todo lo que no te deja ver la cuenta que el operador te ha restringido.
