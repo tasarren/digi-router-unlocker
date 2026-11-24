@@ -6,6 +6,7 @@ Súper fácil, ¡desde tu navegador! no tienes que tener conocimientos ni ejecut
 [![Instalar con Tampermonkey](https://img.shields.io/badge/Instalar%20con-Tampermonkey-00485B?logo=tampermonkey&logoColor=white)](https://raw.githubusercontent.com/tasarren/digi-router-unlocker/main/unlock.user.js)
 [![Instalar con Violentmonkey](https://img.shields.io/badge/Instalar%20con-Violentmonkey-F26B1F)](https://raw.githubusercontent.com/tasarren/digi-router-unlocker/main/unlock.user.js)
 [![Descargar .user.js](https://img.shields.io/badge/Descargar-.user.js-2ea44f)](https://raw.githubusercontent.com/tasarren/digi-router-unlocker/main/unlock.user.js)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/tasarren)
 
 [English](README-en.md)
 
@@ -166,3 +167,7 @@ Recuerda: todo esto es del lado del cliente; la política del servidor del opera
 "No disponible" quiere
 decir que la página está escondida por defecto por la restricción del operador, así que no existe captura
 por defecto.
+
+## Apoyo
+
+Un café en [Ko-fi](https://ko-fi.com/tasarren) o una suscripción en [GitHub Sponsors](https://github.com/sponsors/tasarren). Así este proyecto sigue adelante.

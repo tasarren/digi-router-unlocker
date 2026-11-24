@@ -3,6 +3,7 @@
 [![Install with Tampermonkey](https://img.shields.io/badge/Install%20with-Tampermonkey-00485B?logo=tampermonkey&logoColor=white)](https://raw.githubusercontent.com/tasarren/digi-router-unlocker/main/unlock.user.js)
 [![Install with Violentmonkey](https://img.shields.io/badge/Install%20with-Violentmonkey-F26B1F)](https://raw.githubusercontent.com/tasarren/digi-router-unlocker/main/unlock.user.js)
 [![Download .user.js](https://img.shields.io/badge/Download-.user.js-2ea44f)](https://raw.githubusercontent.com/tasarren/digi-router-unlocker/main/unlock.user.js)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/tasarren)
 
 [Español](README.md) · [Variables reference: `VARIABLES.md`](VARIABLES.md)
 
@@ -158,3 +159,7 @@ Remember: this is all client side; the ISP's server-side policy still wins.
 | Telephony | <a href="screenshots/adv-telephony-patched.png"><img src="screenshots/adv-telephony-patched.png" width="240" alt="telephony patched" /></a> | <a href="screenshots/adv-telephony-default.png"><img src="screenshots/adv-telephony-default.png" width="240" alt="telephony default" /></a> |
 
 "Not available" means the page is hidden by default under the ISP restriction, so no default screenshot exists.
+
+## Support
+
+Tip on [Ko-fi](https://ko-fi.com/tasarren) or sponsor [@tasarren on GitHub](https://github.com/sponsors/tasarren). Both help keep this project moving.
